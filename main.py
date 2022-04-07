@@ -35,15 +35,16 @@ def draw_snake(snake: Snake):
         segment_rect = pygame.Rect(segment.x, segment.y, GRID_SIZE, GRID_SIZE)
         pygame.draw.rect(WIN, SNAKE_COLOR, segment_rect)
 
-# def move_snake(keys_pressed, snake: Snake):
-#     if keys_pressed[pygame.K_a] and yellow.x - VEL > 0:  # LEFT
-#         yellow.x -= VEL
-#     if keys_pressed[pygame.K_d] and yellow.x + VEL + yellow.width < BORDER.x:  # RIGHT
-#         yellow.x += VEL
-#     if keys_pressed[pygame.K_w] and yellow.y - VEL > 0:  # UP
-#         yellow.y -= VEL
-#     if keys_pressed[pygame.K_s] and yellow.y + VEL + yellow.height < HEIGHT - 15:  # DOWN
-#         yellow.y += VEL
+
+def handle_snake_movement(snake: Snake, keys_pressed):
+    if keys_pressed[pygame.K_UP]:  # UP
+        snake.change_direction("UP")
+    if keys_pressed[pygame.K_RIGHT]:  # RIGHT
+        snake.change_direction("RIGHT")
+    if keys_pressed[pygame.K_DOWN]:  # DOWN
+        snake.change_direction("DOWN")
+    if keys_pressed[pygame.K_LEFT]:  # LEFT
+        snake.change_direction("LEFT")
 
 
 def main():
@@ -57,20 +58,27 @@ def main():
         WIN.fill(BG_COLOUR)
         grid.draw()
         clock.tick(FPS)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
         keys_pressed = pygame.key.get_pressed()
 
-        if keys_pressed[pygame.K_UP]:  # LEFT
-            snake.change_direction("UP")
+        handle_snake_movement(snake, keys_pressed)
 
-        current_gamespeed = 0.5  # THIS WILL SCALE DOWN WITH CURRENT SNAKE LENGTH
-        if snake.current_direction is not None:
-            sleep(current_gamespeed)
+        # Current game speed in milliseconds since last snake movement
+        current_game_speed = 500  # THIS WILL SCALE DOWN WITH CURRENT SNAKE LENGTH
 
-        snake.move("UP", GRID_SIZE)
+        if snake.current_direction is None:
+            # Define the last time the snake moved as 0
+            last_movement_time = 0
+        else:
+            if pygame.time.get_ticks() - last_movement_time > current_game_speed:
+                snake.move(GRID_SIZE)
+                last_movement_time = pygame.time.get_ticks()
+
+
 
         draw_snake(snake)
         pygame.display.update()

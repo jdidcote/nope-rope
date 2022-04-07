@@ -15,7 +15,7 @@ class Snake:
         # Change the snakes current direction
         self.current_direction = direction
 
-    def move(self, direction: str, velocity):
+    def move(self, velocity):
         """Add a new element to head of list in given direction
         """
 
@@ -25,6 +25,12 @@ class Snake:
 
         if self.current_direction == "UP":
             self.pos[-1].y -= velocity
+        if self.current_direction == "RIGHT":
+            self.pos[-1].x += velocity
+        if self.current_direction == "DOWN":
+            self.pos[-1].y += velocity
+        if self.current_direction == "LEFT":
+            self.pos[-1].x -= velocity
 
     def grow(self):
         """Add a new node to the start of the list and do nothing else
