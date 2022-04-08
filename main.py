@@ -1,5 +1,3 @@
-from time import sleep
-
 import pygame
 
 from data.snake import Position, Snake
@@ -20,7 +18,7 @@ SNAKE_COLOR = (95, 130, 86)
 
 
 class Grid:
-    def __init__(self, grid_size):
+    def __init__(self, width: int, grid_size: int):
         self.grid_size = grid_size
 
     def draw(self):
@@ -37,6 +35,8 @@ def draw_snake(snake: Snake):
 
 
 def handle_snake_movement(snake: Snake, keys_pressed):
+    """ Control snake direction with user input
+    """
     if keys_pressed[pygame.K_UP]:  # UP
         snake.change_direction("UP")
     if keys_pressed[pygame.K_RIGHT]:  # RIGHT
@@ -46,12 +46,19 @@ def handle_snake_movement(snake: Snake, keys_pressed):
     if keys_pressed[pygame.K_LEFT]:  # LEFT
         snake.change_direction("LEFT")
 
+# def handle_snake_edges(grid: Grid, snake: Snake):
+#     """ If the snake reaches the edge of the screen,
+#         make it appear on the other side
+#     """
+#     if snake.head.x == 0:  # LEFT EDGE
+#         snake.head.x +=
+
 
 def main():
     clock = pygame.time.Clock()
 
-    grid = Grid(GRID_SIZE)
-    snake = Snake([INITIAL_SNAKE_POS])
+    grid = Grid(WIDTH, GRID_SIZE)
+    snake = Snake(pos=[INITIAL_SNAKE_POS], step_size=GRID_SIZE)
 
     run = True
     while run:
@@ -68,14 +75,14 @@ def main():
         handle_snake_movement(snake, keys_pressed)
 
         # Current game speed in milliseconds since last snake movement
-        current_game_speed = 500  # THIS WILL SCALE DOWN WITH CURRENT SNAKE LENGTH
+        current_game_speed = 250  # THIS WILL SCALE DOWN WITH CURRENT SNAKE LENGTH
 
         if snake.current_direction is None:
             # Define the last time the snake moved as 0
             last_movement_time = 0
         else:
             if pygame.time.get_ticks() - last_movement_time > current_game_speed:
-                snake.move(GRID_SIZE)
+                snake.move()
                 last_movement_time = pygame.time.get_ticks()
 
 
