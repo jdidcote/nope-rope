@@ -1,6 +1,7 @@
 import pygame
 
 from data.direction import Direction
+from data.grid import Grid
 from data.snake import Position, Snake
 
 FPS = 60
@@ -17,19 +18,6 @@ INITIAL_GAME_SPEED = 250
 WHITE = (255, 255, 255)
 BG_COLOUR = (217, 180, 178)
 SNAKE_COLOR = (95, 130, 86)
-
-
-class Grid:
-    def __init__(self, width: int, grid_size: int):
-        self.width = width
-        self.grid_size = grid_size
-        self.border_dist = width - grid_size
-
-    def draw(self):
-        for x in range(0, WIDTH, self.grid_size):
-            for y in range(0, WIDTH, self.grid_size):
-                rect = pygame.Rect(x, y, self.grid_size, self.grid_size)
-                pygame.draw.rect(WIN, WHITE, rect, 1)
 
 
 def draw_snake(snake: Snake):
@@ -85,13 +73,13 @@ def handle_snake_movement(grid: Grid, snake: Snake):
 def main():
     clock = pygame.time.Clock()
 
-    grid = Grid(WIDTH, GRID_SIZE)
+    grid = Grid(WIDTH, GRID_SIZE, WHITE)
     snake = Snake(pos=[INITIAL_SNAKE_POS], step_size=GRID_SIZE)
 
     run = True
     while run:
         WIN.fill(BG_COLOUR)
-        grid.draw()
+        grid.draw(WIN)
         clock.tick(FPS)
 
         for event in pygame.event.get():
