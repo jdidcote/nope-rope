@@ -22,3 +22,14 @@ class Position:
         else:
             return None
 
+
+def position_collision(pos1: Position, pos2: Position, tol: int) -> bool:
+    """ Detects if two positions are colliding within a certain tolerance
+
+    :param pos1: First Position object
+    :param pos2: Second Position object
+    :param tol: Tolerance in x/y to consider a collision
+    :return: whether objects have collided
+    """
+
+    return (abs(pos1.x - pos2.x) < tol) and (abs(pos1.y - pos2.y) < tol)

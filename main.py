@@ -1,8 +1,10 @@
 import pygame
 
 from data.direction import Direction
+from data.food import Food
 from data.grid import Grid
-from data.snake import Position, Snake
+from data.position import Position, position_collision
+from data.snake import Snake
 
 FPS = 60
 WIDTH, HEIGHT = 500, 500
@@ -47,8 +49,6 @@ def handle_snake_movement(grid: Grid, snake: Snake):
 
     snake_border_last = snake.last_head_pos.get_border(grid.border_dist)
     snake_border = snake_head_pos.get_border(grid.border_dist)
-    # print(snake_border_last, snake_border)
-    # print(snake.last_head_pos, snake_head_pos)
 
     def _handle_borders():
         """ Handle the snake wrapping around the screen
@@ -61,6 +61,8 @@ def handle_snake_movement(grid: Grid, snake: Snake):
             new_pos = Position(snake_head_pos.x, 0)
         if snake_border == Direction.left and snake.current_direction == Direction.left:
             new_pos = Position(grid.border_dist, snake_head_pos.y)
+        else:
+            new_pos = snake_head_pos
         snake.change_head_pos(new_pos)
 
     # If snake is at border and last position was not border, handle
@@ -69,6 +71,10 @@ def handle_snake_movement(grid: Grid, snake: Snake):
     else:
         snake.move()
 
+def handle_food(snake: Snake, food: Food, grid: Grid):
+
+    if position_collision(snake.pos[-1], food.pos, grid.grid_size):
+        food.eaten = True
 
 def main():
     clock = pygame.time.Clock()
@@ -76,10 +82,13 @@ def main():
     grid = Grid(WIDTH, GRID_SIZE, WHITE)
     snake = Snake(pos=[INITIAL_SNAKE_POS], step_size=GRID_SIZE)
 
+    food = Food(grid)
+
     run = True
     while run:
-        WIN.fill(BG_COLOUR)
+        WIN.fill(WHITE)
         grid.draw(WIN)
+        food.draw(WIN)
         clock.tick(FPS)
 
         for event in pygame.event.get():
@@ -89,6 +98,7 @@ def main():
         keys_pressed = pygame.key.get_pressed()
 
         handle_snake_direction(snake, keys_pressed)
+        handle_food(snake, food, grid)
 
         # Current game speed in milliseconds since last snake movement
         current_game_speed = INITIAL_GAME_SPEED  # THIS WILL SCALE DOWN WITH CURRENT SNAKE LENGTH
@@ -103,6 +113,7 @@ def main():
 
         draw_snake(snake)
         pygame.display.update()
+        pygame.display.flip()
 
     pygame.quit()
 
