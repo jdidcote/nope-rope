@@ -1,6 +1,6 @@
 import pygame
 
-from data.direction import Direction
+from data.direction import Direction, OrthogonalDirections
 from data.food import Food
 from data.grid import Grid
 from data.position import Position, position_collision
@@ -35,14 +35,22 @@ def draw_snake(snake: Snake):
 def handle_snake_direction(snake: Snake, keys_pressed):
     """ Control snake direction with user input
     """
+
     if keys_pressed[pygame.K_UP]:
-        snake.change_direction(Direction.up)
-    if keys_pressed[pygame.K_RIGHT]:
-        snake.change_direction(Direction.right)
-    if keys_pressed[pygame.K_DOWN]:
-        snake.change_direction(Direction.down)
-    if keys_pressed[pygame.K_LEFT]:
-        snake.change_direction(Direction.left)
+        new_snake_direction = Direction.up
+    elif keys_pressed[pygame.K_RIGHT]:
+        new_snake_direction = Direction.right
+    elif keys_pressed[pygame.K_DOWN]:
+        new_snake_direction = Direction.down
+    elif keys_pressed[pygame.K_LEFT]:
+        new_snake_direction = Direction.left
+    else: new_snake_direction = snake.current_direction
+
+    allowed_directions = OrthogonalDirections.orthogonal_directions[snake.current_direction]
+
+    # Only allow for orthogonal changes in direction
+    if new_snake_direction in allowed_directions:
+        snake.change_direction(new_snake_direction)
 
 
 def handle_snake_movement(grid: Grid, snake: Snake):
