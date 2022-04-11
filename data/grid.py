@@ -2,6 +2,7 @@ from typing import Tuple
 
 import pygame
 
+
 class Grid:
     def __init__(
             self,

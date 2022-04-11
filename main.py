@@ -5,8 +5,11 @@ from data.food import Food
 from data.grid import Grid
 from data.position import Position, position_collision
 from data.snake import Snake
+from logger import setup_logger
 
-FPS = 60
+logger = setup_logger()
+
+FPS = 30
 WIDTH, HEIGHT = 500, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 GRID_SIZE = 20
@@ -56,16 +59,16 @@ def handle_snake_movement(grid: Grid, snake: Snake):
         """
         if snake_border == Direction.up and snake.current_direction == Direction.up:
             new_pos = Position(snake_head_pos.x, grid.border_dist)
-        if snake_border == Direction.right and snake.current_direction == Direction.right:
+        elif snake_border == Direction.right and snake.current_direction == Direction.right:
             new_pos = Position(0, snake_head_pos.y)
-        if snake_border == Direction.down and snake.current_direction == Direction.down:
+        elif snake_border == Direction.down and snake.current_direction == Direction.down:
             new_pos = Position(snake_head_pos.x, 0)
-        if snake_border == Direction.left and snake.current_direction == Direction.left:
+        elif snake_border == Direction.left and snake.current_direction == Direction.left:
             new_pos = Position(grid.border_dist, snake_head_pos.y)
         else:
             new_pos = snake_head_pos
-        snake.change_head_pos(new_pos)
 
+        snake.change_head_pos(new_pos)
     # If snake is at border and last position was not border, handle
     if (snake_border is not None) and (snake_border_last is None):
         _handle_borders()
@@ -89,6 +92,7 @@ def main():
 
     # Current game speed in milliseconds since last snake movement
     current_game_speed = INITIAL_GAME_SPEED
+    last_movement_time = 0
 
     food = Food(grid)
 
@@ -107,17 +111,13 @@ def main():
 
         handle_snake_direction(snake, keys_pressed)
 
-        if snake.current_direction is None:
-            # Define the last time the snake moved as 0
-            last_movement_time = 0
-        else:
-            if pygame.time.get_ticks() - last_movement_time > current_game_speed:
-                last_movement_time = pygame.time.get_ticks()
-                was_eaten = handle_food(snake, food, grid)
-                handle_snake_movement(grid, snake)
-                if was_eaten:
-                    current_game_speed -= FOOD_SPEED_INCREASE
-                    food = Food(grid)
+        if pygame.time.get_ticks() - last_movement_time > current_game_speed:
+            last_movement_time = pygame.time.get_ticks()
+            was_eaten = handle_food(snake, food, grid)
+            handle_snake_movement(grid, snake)
+            if was_eaten:
+                current_game_speed -= FOOD_SPEED_INCREASE
+                food = Food(grid)
 
         draw_snake(snake)
         pygame.display.update()

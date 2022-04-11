@@ -18,7 +18,7 @@ class Position:
         elif self.x == border_dist:
             return Direction.right
         elif self.y == border_dist:
-            return Direction.right
+            return Direction.down
         else:
             return None
 
