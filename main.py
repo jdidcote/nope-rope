@@ -52,28 +52,29 @@ def handle_snake_movement(grid: Grid, snake: Snake):
     snake_head_pos = snake.pos[-1]
 
     snake_border_last = snake.last_head_pos.get_border(grid.border_dist)
-    snake_border = snake_head_pos.get_border(grid.border_dist)
 
-    def _handle_borders():
-        """ Handle the snake wrapping around the screen
+    # Dictionary of current direction to a tuple that maps to the opposite side of the screen
+    def _flip_border_position(direction: Direction, pos: Position):
+        """ Flip the snakes position if it crosses the border
         """
-        if snake_border == Direction.up and snake.current_direction == Direction.up:
-            new_pos = Position(snake_head_pos.x, grid.border_dist)
-        elif snake_border == Direction.right and snake.current_direction == Direction.right:
-            new_pos = Position(0, snake_head_pos.y)
-        elif snake_border == Direction.down and snake.current_direction == Direction.down:
-            new_pos = Position(snake_head_pos.x, 0)
-        elif snake_border == Direction.left and snake.current_direction == Direction.left:
-            new_pos = Position(grid.border_dist, snake_head_pos.y)
-        else:
-            new_pos = snake_head_pos
+        x, y, = pos.x, pos.y
+        new_pos = {
+            x < 0: Position(grid.border_dist, y),
+            x > grid.width: Position(0, y),
+            y < 0: Position(x, grid.border_dist),
+            y > grid.width: Position(x, 0)
+        }
+        return new_pos[True]
 
-        snake.change_head_pos(new_pos)
-    # If snake is at border and last position was not border, handle
-    if (snake_border is not None) and (snake_border_last is None):
-        _handle_borders()
-    else:
+    try:
+        snake.change_head_pos(_flip_border_position(snake_border_last, snake_head_pos))
+    except KeyError:
         snake.move()
+
+    # if snake_border_last is not None:
+    #     snake.change_head_pos(_get_new_pos(snake_border_last, snake_head_pos))
+    # else:
+    #     snake.move()
 
 
 def handle_food(snake: Snake, food: Food, grid: Grid):
