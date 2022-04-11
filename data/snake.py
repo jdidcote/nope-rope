@@ -40,6 +40,7 @@ class Snake:
             return
 
         self._move_head()
+        self._move_tail()
 
     def _move_head(self):
         """ Move the snake's head forward one step size
@@ -55,10 +56,25 @@ class Snake:
         if self.current_direction == Direction.left:
             self.pos[-1].x -= self.step_size
 
+    def _move_tail(self):
+        """ Move the snake's tail to the previous head position
+        """
+        if len(self.pos) > 1:
+            del self.pos[0]
+            self.pos.insert(-1, self.last_head_pos)
+
     def grow(self):
         """Add a new node to the start of the list and do nothing else
         """
-        pass
+        # Create a new position one square behind
+        tail_pos = self.pos[0]
+        new_position = Position(
+            (tail_pos.x + (self.step_size * self.current_direction[0])),
+            (tail_pos.y + (self.step_size * self.current_direction[0]))
+        )
+
+        self.pos = [new_position] + self.pos
+        # logger.info(f"{self.pos}")
 
     def reset(self):
         pass
