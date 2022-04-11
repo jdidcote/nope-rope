@@ -14,12 +14,16 @@ WIDTH, HEIGHT = 500, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 GRID_SIZE = 20
 
+pygame.font.init()
+GAME_SCORE_FONT = pygame.font.SysFont("Arial", 80)
+END_GAME_FONT = pygame.font.SysFont("Arial", 80)
+
 INITIAL_SNAKE_POS = Position(
     HEIGHT // 2 - GRID_SIZE // 2,
     WIDTH // 2 - GRID_SIZE // 2
 )
 INITIAL_GAME_SPEED = 200
-FOOD_SPEED_INCREASE = 50
+FOOD_SPEED_INCREASE = 5
 
 WHITE = (255, 255, 255)
 BG_COLOUR = (217, 180, 178)
@@ -58,10 +62,8 @@ def handle_snake_movement(grid: Grid, snake: Snake):
         the coordinates of the opposite side
     """
     snake_head_pos = snake.pos[-1]
-
     snake_border_last = snake.last_head_pos.get_border(grid.border_dist)
 
-    # Dictionary of current direction to a tuple that maps to the opposite side of the screen
     def _flip_border_position(pos: Position):
         """ Flip the snakes position if it crosses the border
         """
@@ -120,6 +122,8 @@ def main():
     food = Food(grid)
 
     run = True
+    is_game_over = False
+
     while run:
         WIN.fill(WHITE)
         grid.draw(WIN)
@@ -131,20 +135,28 @@ def main():
                 run = False
 
         keys_pressed = pygame.key.get_pressed()
-
         handle_snake_direction(snake, keys_pressed)
 
-        if pygame.time.get_ticks() - last_movement_time > max(current_game_speed, 0):
+        letter = GAME_SCORE_FONT.render(str(snake.current_score), 0, (149, 207, 207))
+        WIN.blit(letter, (grid.grid_size // 2, grid.grid_size // 2))
+
+        if (pygame.time.get_ticks() - last_movement_time > max(current_game_speed, 0)) and not is_game_over:
             last_movement_time = pygame.time.get_ticks()
             was_eaten = handle_food(snake, food, grid)
             handle_snake_movement(grid, snake)
             if was_eaten:
                 current_game_speed -= FOOD_SPEED_INCREASE
+                snake.current_score += 1
                 food = Food(grid)
+
+        # Check for game ending collision (head position duplicated in tail):
+        if snake.pos[-1] in snake.pos[:-1]:
+            game_over_text = END_GAME_FONT.render(str("Game over!"), 0, (0, 0, 0))
+            WIN.blit(game_over_text, (0, grid.width // 2))
+            is_game_over = True
 
         draw_snake(snake)
         pygame.display.update()
-        pygame.display.flip()
 
     pygame.quit()
 
