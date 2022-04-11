@@ -62,27 +62,41 @@ def handle_snake_movement(grid: Grid, snake: Snake):
     snake_border_last = snake.last_head_pos.get_border(grid.border_dist)
 
     # Dictionary of current direction to a tuple that maps to the opposite side of the screen
-    def _flip_border_position(direction: Direction, pos: Position):
+    def _flip_border_position(pos: Position):
         """ Flip the snakes position if it crosses the border
         """
         x, y, = pos.x, pos.y
-        new_pos = {
-            x < 0: Position(grid.border_dist, y),
-            x > grid.width: Position(0, y),
-            y < 0: Position(x, grid.border_dist),
-            y > grid.width: Position(x, 0)
-        }
-        return new_pos[True]
+        safe_x = min(pos.x, grid.border_dist)
+        safe_y = min(pos.y, grid.border_dist)
 
-    try:
-        snake.change_head_pos(_flip_border_position(snake_border_last, snake_head_pos))
-    except KeyError:
+        flipped = False
+
+        if x < 0:  # LEFT
+            snake.change_head_pos(
+                Position(grid.width, safe_y)
+            )
+            flipped = True
+        if x > grid.width:  # RIGHT
+            snake.change_head_pos(
+                Position(0, safe_y)
+            )
+            flipped = True
+        if y < 0:  # UP
+            snake.change_head_pos(
+                Position(safe_x, grid.width)
+            )
+            flipped = True
+        if y > grid.width:  # DOWN
+            snake.change_head_pos(
+                Position(safe_x, 0)
+            )
+            flipped = True
+        return flipped
+
+    was_flipped = _flip_border_position(snake.pos[-1])
+
+    if not was_flipped:
         snake.move()
-
-    # if snake_border_last is not None:
-    #     snake.change_head_pos(_get_new_pos(snake_border_last, snake_head_pos))
-    # else:
-    #     snake.move()
 
 
 def handle_food(snake: Snake, food: Food, grid: Grid):
@@ -120,7 +134,7 @@ def main():
 
         handle_snake_direction(snake, keys_pressed)
 
-        if pygame.time.get_ticks() - last_movement_time > current_game_speed:
+        if pygame.time.get_ticks() - last_movement_time > max(current_game_speed, 0):
             last_movement_time = pygame.time.get_ticks()
             was_eaten = handle_food(snake, food, grid)
             handle_snake_movement(grid, snake)

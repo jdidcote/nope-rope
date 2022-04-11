@@ -11,14 +11,17 @@ logger = setup_logger()
 class Snake:
     def __init__(self, pos: List[Position], step_size: float):
         self.pos = pos
-        self.current_direction = None
         self.step_size = step_size
-        self.last_head_pos = pos[-1]
+        self._init_snake()
 
-    def change_direction(self, direction: str):
+    def _init_snake(self):
+        self.current_direction = None
+        self.last_head_pos = self.pos[-1]
+        self.current_score = 0
+
+    def change_direction(self, direction: Direction):
         """Change the direction of the snake's movement
         """
-
         # Change the snakes current direction
         self.current_direction = direction
 
@@ -77,4 +80,4 @@ class Snake:
         # logger.info(f"{self.pos}")
 
     def reset(self):
-        pass
+        self._init_snake()
